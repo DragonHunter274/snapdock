@@ -116,6 +116,8 @@ COPY --from=build-snapweb /app/snapweb/build /app/snapweb
 COPY --from=build-librespot /librespot/go-librespot/daemon /app/go-librespot
 COPY --from=build-shairport /shairport/shairport-sync/shairport-sync /app/
 COPY avahi.conf /etc/avahi/avahi-daemon.conf
+COPY gstreamer.sh /etc/gstreamer.sh
+RUN chmod +x /etc/gstreamer.sh
 CMD mkdir -p /app/go-librespot-config
 COPY librespot-config.yaml /app/go-librespot-config/config.yaml
 CMD mkdir -p /run/dbus
