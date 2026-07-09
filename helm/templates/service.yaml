@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "snapdock.fullname" . }}
+  labels:
+    {{- include "snapdock.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  selector:
+    {{- include "snapdock.selectorLabels" . | nindent 4 }}
+  ports:
+    - name: snapcast-ctrl
+      port: {{ .Values.ports.snapcastCtrl }}
+      targetPort: {{ .Values.ports.snapcastCtrl }}
+      protocol: TCP
+    - name: snapcast-stream
+      port: {{ .Values.ports.snapcastStream }}
+      targetPort: {{ .Values.ports.snapcastStream }}
+      protocol: TCP
+    - name: snapweb
+      port: {{ .Values.ports.snapweb }}
+      targetPort: {{ .Values.ports.snapweb }}
+      protocol: TCP
+    - name: airplay
+      port: {{ .Values.airplay.tcpPort }}
+      targetPort: {{ .Values.airplay.tcpPort }}
+      protocol: TCP
+    {{- range $i := until (int .Values.airplay.udpPortRange) }}
+    - name: airplay-udp-{{ $i }}
+      port: {{ add $.Values.airplay.udpPortBase $i }}
+      targetPort: {{ add $.Values.airplay.udpPortBase $i }}
+      protocol: UDP
+    {{- end }}
+    - name: aux-rtp
+      port: {{ $.Values.ports.auxRtp }}
+      targetPort: {{ $.Values.ports.auxRtp }}
+      protocol: UDP
+    - name: spotify-zc
+      port: {{ .Values.ports.spotifyZc }}
+      targetPort: {{ .Values.ports.spotifyZc }}
+      protocol: TCP

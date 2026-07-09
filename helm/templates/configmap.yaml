@@ -1,0 +1,55 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "snapdock.fullname" . }}
+  labels:
+    {{- include "snapdock.labels" . | nindent 4 }}
+data:
+  snapserver.conf: |
+    [server]
+
+    [http]
+    port = {{ .Values.ports.snapweb }}
+    doc_root = /app/snapweb
+
+    [tcp]
+    port = {{ .Values.ports.snapcastStream }}
+
+    [stream]
+    source = process:///app/go-librespot?name=Spotify&sampleformat=44100:16:2&params=--config_dir%20/app/go-librespot-config/&dryout_ms=2000&wd_timeout=0&log_stderr=false&controlscript=meta_go-librespot.py&controlscriptparams=--stream=Spotify%20--librespot-host=127.0.0.1%20--librespot-port=24879%20--snapcast-host=127.0.0.1
+    source = airplay:///app/shairport-sync?name=Airplay&devicename={{ .Values.deviceName }}&port={{ .Values.airplay.tcpPort }}
+    source = process:///etc/gstreamer.sh?name=Aux&logStderr=true
+
+    [logging]
+
+  shairport-sync.conf: |
+    general =
+    {
+      udp_port_base = {{ .Values.airplay.udpPortBase }};
+      udp_port_range = {{ .Values.airplay.udpPortRange }};
+    };
+
+  librespot-config.yaml: |
+    device_name: "{{ .Values.deviceName }}"
+    device_type: "speaker"
+
+    audio_backend: "pipe"
+    audio_output_pipe: "/dev/stdout"
+    audio_output_pipe_format: "s16le"
+
+    initial_volume: 50
+
+    bitrate: 320
+
+    normalisation_disabled: false
+    normalisation_use_album_gain: true
+    normalisation_pregain: 6.0
+
+    server:
+      enabled: true
+      port: 24879
+
+    credentials:
+      type: zeroconf
+      zeroconf:
+        persist_credentials: true

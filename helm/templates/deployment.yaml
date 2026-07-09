@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "snapdock.fullname" . }}
+  labels:
+    {{- include "snapdock.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "snapdock.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "snapdock.selectorLabels" . | nindent 8 }}
+    spec:
+      initContainers:
+        - name: copy-librespot-config
+          image: busybox:latest
+          command: ["cp", "/config/librespot-config.yaml", "/librespot-config/config.yaml"]
+          volumeMounts:
+            - name: config
+              mountPath: /config
+            - name: librespot-config
+              mountPath: /librespot-config
+
+      containers:
+        - name: snapdock
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: snapcast-ctrl
+              containerPort: {{ .Values.ports.snapcastCtrl }}
+              protocol: TCP
+            - name: snapcast-stream
+              containerPort: {{ .Values.ports.snapcastStream }}
+              protocol: TCP
+            - name: snapweb
+              containerPort: {{ .Values.ports.snapweb }}
+              protocol: TCP
+            - name: airplay
+              containerPort: {{ .Values.airplay.tcpPort }}
+              protocol: TCP
+            {{- range $i := until (int .Values.airplay.udpPortRange) }}
+            - name: airplay-udp-{{ $i }}
+              containerPort: {{ add $.Values.airplay.udpPortBase $i }}
+              protocol: UDP
+            {{- end }}
+            - name: aux-rtp
+              containerPort: {{ $.Values.ports.auxRtp }}
+              protocol: UDP
+          volumeMounts:
+            - name: config
+              mountPath: /etc/snapserver.conf
+              subPath: snapserver.conf
+            - name: config
+              mountPath: /etc/shairport-sync.conf
+              subPath: shairport-sync.conf
+            - name: librespot-config
+              mountPath: /app/go-librespot-config
+
+      volumes:
+        - name: config
+          configMap:
+            name: {{ include "snapdock.fullname" . }}
+        - name: librespot-config
+          emptyDir: {}
