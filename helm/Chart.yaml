@@ -2,5 +2,5 @@ apiVersion: v2
 name: snapdock
 description: Snapcast server with AirPlay and Spotify Connect
 type: application
-version: 0.1.2
+version: 0.1.3
 appVersion: "latest"

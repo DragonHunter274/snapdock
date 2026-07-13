@@ -12,6 +12,7 @@ airplay:
 
 service:
   type: LoadBalancer
+  externalTrafficPolicy: Local
 
 ports:
   snapcastCtrl: 1704

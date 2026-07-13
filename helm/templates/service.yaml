@@ -6,6 +6,7 @@ metadata:
     {{- include "snapdock.labels" . | nindent 4 }}
 spec:
   type: {{ .Values.service.type }}
+  externalTrafficPolicy: {{ .Values.service.externalTrafficPolicy }}
   selector:
     {{- include "snapdock.selectorLabels" . | nindent 4 }}
   ports:
