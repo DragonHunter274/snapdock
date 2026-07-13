@@ -3,12 +3,12 @@ image:
   tag: latest
   pullPolicy: Always
 
-deviceName: DJFlab
+deviceName: DJFlab_testing
 
 airplay:
   tcpPort: 5000
   udpPortBase: 6001
-  udpPortRange: 3
+  udpPortRange: 9
 
 service:
   type: LoadBalancer
