@@ -32,6 +32,7 @@ data:
   librespot-config.yaml: |
     device_name: "{{ .Values.deviceName }}"
     device_type: "speaker"
+    zeroconf_port: 34053
 
     audio_backend: "pipe"
     audio_output_pipe: "/dev/stdout"
